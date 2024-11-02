@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Inline CSS for styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        #container {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        #startButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #startButton:disabled {
+            background-color: #aaa;
+        }
+        #textOutput {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Speech to Text Converter</h1>
+        <button id="startButton">Start Listening</button>
+        <textarea id="textOutput" placeholder="Your speech will appear here..." readonly></textarea>
+    </div>
+
+    <script>
+        // Check if the browser supports webkitSpeechRecognition
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Sorry, your browser doesn't support speech recognition. Please try Google Chrome.");
+        } else {
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = "en-US"; // Set language to English
+
+            const startButton = document.getElementById("startButton");
+            const textOutput = document.getElementById("textOutput");
+
+            startButton.onclick = () => {
+                textOutput.value = ""; // Clear the text area
+                recognition.start();
+                startButton.disabled = true;
+                startButton.textContent = "Listening...";
+            };
+
+            // When the user speaks
+            recognition.onresult = (event) => {
+                let transcript = "";
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                textOutput.value = transcript;
+            };
+
+            // When the speech recognition ends
+            recognition.onend = () => {
+                startButton.disabled = false;
+                startButton.textContent = "Start Listening";
+            };
+
+            // Error handling
+            recognition.onerror = (event) => {
+                console.error("Error occurred in recognition: " + event.error);
+                startButton.disabled = false;
+                startButton.textContent = "Start Listening";
+            };
+        }
+    </script>
+</body>
+</html>
